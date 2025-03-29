@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mathematics Proficiency Test</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --background: #1a1a2e;
+            --correct: #27ae60;
+            --incorrect: #c0392b;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><text x="10" y="50" font-family="Arial" font-size="20" fill="rgba(255,255,255,0.05)">∫ ∑ π √</text></svg>'), 
+                        linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #ecf0f1;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1, h2, h3 {
+            color: #3498db;
+        }
+
+        .timer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--accent);
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+            z-index: 100;
+        }
+
+        .question-box {
+            margin: 25px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border-left: 4px solid var(--secondary);
+            transition: all 0.3s ease;
+        }
+
+        .question-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .options label {
+            display: block;
+            margin: 12px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .options label:hover {
+            background: rgba(52, 152, 219, 0.3);
+        }
+
+        .options label::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: 0.5s;
+        }
+
+        .options label:hover::after {
+            left: 100%;
+        }
+
+        button {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            display: block;
+            width: 100%;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        .registration {
+            text-align: center;
+            padding: 40px;
+        }
+
+        input {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 15px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
+        }
+
+        .correct { 
+            background: var(--correct) !important;
+            color: white;
+        }
+
+        .incorrect { 
+            background: var(--incorrect) !important; 
+            opacity: 0.8;
+            color: white;
+        }
+
+        .results {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .score {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--secondary);
+            margin: 10px 0;
+        }
+
+        .percentage {
+            font-size: 1.5rem;
+            color: #f1c40f;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            .timer {
+                top: 10px;
+                right: 10px;
+                font-size: 1rem;
+                padding: 8px 15px;
+            }
+        }
+
+        /* Math symbol decorations */
+        .math-symbol {
+            position: absolute;
+            font-size: 10rem;
+            opacity: 0.03;
+            z-index: -1;
+        }
+
+        .symbol-1 {
+            top: 50px;
+            right: 50px;
+        }
+
+        .symbol-2 {
+            bottom: 50px;
+            left: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="math-symbol symbol-1">∫</div>
+    <div class="math-symbol symbol-2">∑</div>
+
+    <div class="registration" id="registration">
+        <div class="container">
+            <h1>Mathematics Proficiency Test</h1>
+            <p>Please enter your details to begin the test</p>
+            <input type="text" id="name" placeholder="Full Name" required>
+            <input type="tel" id="phone" placeholder="Phone Number" required>
+            <button onclick="startTest()">Begin Test</button>
+        </div>
+    </div>
+
+    <div class="container" id="testContainer" style="display: none;">
+        <div class="timer" id="timer">05:00</div>
+        <h2>Mathematics Test</h2>
+        <p>Answer all questions. You have 5 minutes.</p>
+        
+        <div id="questions"></div>
+        <button onclick="submitTest()" id="submitBtn">Submit Answers</button>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "What is the value of 15 + 27 − 8?",
+                options: ["30", "34", "40", "44"],
+                correct: 1
+            },
+            {
+                question: "Solve for x in the equation 3x + 5 = 20.",
+                options: ["3", "5", "7", "10"],
+                correct: 1
+            },
+            {
+                question: "What is the area of a rectangle with length 8 cm and width 5 cm?",
+                options: ["13 cm²", "30 cm²", "40 cm²", "45 cm²"],
+                correct: 2
+            },
+            {
+                question: "Simplify 12/18 to its lowest terms.",
+                options: ["1/2", "2/3", "3/4", "6/9"],
+                correct: 1
+            },
+            {
+                question: "What is 25% of 200?",
+                options: ["25", "50", "75", "100"],
+                correct: 1
+            },
+            {
+                question: "Evaluate 2⁴.",
+                options: ["8", "16", "32", "64"],
+                correct: 1
+            },
+            {
+                question: "If a book costs $12 and a pen costs $3, how much do 2 books and 4 pens cost together?",
+                options: ["$24", "$30", "$36", "$42"],
+                correct: 2
+            },
+            {
+                question: "What is the greatest common divisor (GCD) of 24 and 36?",
+                options: ["6", "12", "18", "24"],
+                correct: 1
+            },
+            {
+                question: "A fair six-sided die is rolled. What is the probability of getting an even number?",
+                options: ["1/6", "1/3", "1/2", "2/3"],
+                correct: 2
+            },
+            {
+                question: "What is the derivative of f(x) = 5x³ + 2x − 7 with respect to x?",
+                options: ["5x² + 2", "15x² + 2", "15x³ + 2x", "10x + 2"],
+                correct: 1
+            }
+        ];
+
+        let userAnswers = Array(questions.length).fill(null);
+        let timeLeft = 300; // 5 minutes in seconds
+        let timerId;
+        let testStarted = false;
+
+        function startTest() {
+            const name = document.getElementById('name').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            
+            if (!name || !phone) {
+                alert('Please enter both your name and phone number');
+                return;
+            }
+
+            document.getElementById('registration').style.display = 'none';
+            document.getElementById('testContainer').style.display = 'block';
+            
+            // Start timer after 5 seconds
+            setTimeout(() => {
+                testStarted = true;
+                timerId = setInterval(updateTimer, 1000);
+                setupSecurity();
+            }, 5000);
+
+            renderQuestions();
+        }
+
+        function updateTimer() {
+            timeLeft--;
+            const minutes = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+            const seconds = (timeLeft % 60).toString().padStart(2, '0');
+            document.getElementById('timer').textContent = `${minutes}:${seconds}`;
+
+            if (timeLeft <= 0) {
+                submitTest();
+            } else if (timeLeft <= 30) {
+                document.getElementById('timer').style.background = '#c0392b';
+            }
+        }
+
+        function setupSecurity() {
+            // Tab switch detection
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    alert('Test submitted because you switched tabs');
+                    submitTest();
+                }
+            });
+
+            // Window blur detection
+            window.addEventListener('blur', () => {
+                if (testStarted) {
+                    alert('Test submitted because you left the test window');
+                    submitTest();
+                }
+            });
+
+            // Prevent context menu
+            document.addEventListener('contextmenu', e => e.preventDefault());
+
+            // Prevent keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey || e.metaKey) {
+                    e.preventDefault();
+                }
+            });
+        }
+
+        function renderQuestions() {
+            const container = document.getElementById('questions');
+            questions.forEach((q, i) => {
+                const div = document.createElement('div');
+                div.className = 'question-box';
+                div.innerHTML = `
+                    <h3>Question ${i+1}: ${q.question}</h3>
+                    <div class="options" id="q${i}">
+                        ${q.options.map((opt, j) => `
+                            <label>
+                                <input type="radio" name="q${i}" value="${j}" onchange="saveAnswer(${i}, ${j})">
+                                ${String.fromCharCode(65 + j)}) ${opt}
+                            </label>
+                        `).join('')}
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function saveAnswer(questionIndex, answerIndex) {
+            userAnswers[questionIndex] = answerIndex;
+        }
+
+        function submitTest() {
+            if (!testStarted) return;
+            
+            clearInterval(timerId);
+            testStarted = false;
+            calculateScore();
+            showResults();
+            
+            // Remove event listeners
+            window.removeEventListener('blur', submitTest);
+            document.removeEventListener('visibilitychange', submitTest);
+        }
+
+        function calculateScore() {
+            // Collect any unanswered questions
+            questions.forEach((_, i) => {
+                const selected = document.querySelector(`input[name="q${i}"]:checked`);
+                if (selected) {
+                    userAnswers[i] = parseInt(selected.value);
+                }
+            });
+        }
+
+        function showResults() {
+            const score = userAnswers.reduce((acc, ans, i) => 
+                acc + (ans === questions[i].correct ? 1 : 0), 0);
+            
+            const percentage = (score / questions.length * 100).toFixed(1);
+            
+            document.getElementById('timer').remove();
+            document.getElementById('submitBtn').remove();
+
+            // Highlight correct and incorrect answers
+            questions.forEach((q, i) => {
+                const options = document.querySelectorAll(`#q${i} label`);
+                options.forEach((opt, j) => {
+                    if (j === q.correct) {
+                        opt.classList.add('correct');
+                    } else if (userAnswers[i] === j) {
+                        opt.classList.add('incorrect');
+                    }
+                });
+            });
+
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'results';
+            resultDiv.innerHTML = `
+                <h2>Test Completed</h2>
+                <div class="score">Score: ${score}/${questions.length}</div>
+                <div class="percentage">${percentage}%</div>
+                <p>Correct answers are highlighted in green. Your incorrect answers are shown in red.</p>
+            `;
+            document.getElementById('questions').appendChild(resultDiv);
+
+            // Disable all inputs
+            document.querySelectorAll('input[type="radio"]').forEach(input => {
+                input.disabled = true;
+            });
+        }
+    </script>
+</body>
+</html>
